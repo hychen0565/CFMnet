@@ -1,38 +1,148 @@
-#  dataset
-We integrate a novel cross-grained few-shot segmentation dataset （CGFSDS-9）of seamless steel tube inner surface defect, including 3 coarse-grained meta-training surface defects and 6 different fine-grained surface defects of seamless steel tube.
+# CFMANet
+### Structural Affinity Orchestrates Transfer: Few-Shot Defect Segmentation via Morphology-Adaptive Evidence Construction and Correspondence-Regulated Transfer
 
-![img.png](img1.png)
+> **Submitted to IEEE Transactions on Industrial Informatics (TII) | Under Review**
+>
+> Official PyTorch implementation for cross-granularity few-shot defect segmentation on heterogeneous metallic surfaces.
 
-# MFANet
-We propose a cross-grained few-shot semantic segmentation method named Multi-feature Aggregation Network  (MFANet) to solve both the category
-and quantity of defective samples of seamless steel tube are sparse, limiting the generalization of traditional supervised learning
-and general few-shot defect segmentation methodologies.
+---
 
-![img.png](img.png)
+## 📌 Introduction
+Pixel-level defect segmentation under limited annotation is a core bottleneck for intelligent industrial quality inspection. Existing few-shot methods face two critical challenges in real production scenarios:
+1. The semantic granularity gap between coarsely-labeled production archives and fine-grained inspection targets
+2. Poor transfer robustness caused by material appearance variations and diverse defect morphologies
 
-# Download the dataset and code
-The dataset and code are available at: 
+This work proposes **CFMANet (Cross-Granularity Frequency-Aware Matching and Alignment Network)**, which couples morphology-adaptive evidence construction with compatibility-guided knowledge transfer. It achieves accurate few-shot defect segmentation across different semantic granularities and heterogeneous non-ferrous metal surfaces.
 
-# Paper 
-https://ieeexplore.ieee.org/abstract/document/10507010
+---
 
-# Related work of few-shot surface defect segmentation
-[1] TGRNet：
-Triplet-graph reasoning network for few-shot metal generic surface defect segmentation
-The dataset and code are available at: https://pan.baidu.com/s/1dEai3yXrFOsuWcQ5mkE7_A?pwd=qzo6 
+## ✨ Core Highlights
+- **Morphology-Adaptive Spectral Routing (MASR)**: Hierarchically selects directional and frequency-band evidence, and aggregates non-local spatial relations to construct structurally-preserved support prototypes.
+- **Entropic Correspondence Modulation Decoder (ECMD)**: Estimates soft patch-wise correspondences via Sinkhorn-style normalization, and adaptively regulates prototype guidance strength throughout query decoding.
+- 
+- **NFM9 Benchmark**: A 9-class non-ferrous metal defect dataset with pixel-level annotations, collected from real-world production lines covering copper, brass and aluminum alloys.
+- **State-of-the-art Performance**: Achieves leading segmentation accuracy on CGFSDS-9, NFM9 and FSSD-12 benchmarks under both 1-shot and 5-shot settings.
 
-[2] CPANet:
-Cross Position Aggregation Network for Few-Shot Strip Steel Surface Defect Segmentation
-The dataset and code are available at: https://pan.baidu.com/s/1_BORNJrO4msD0OPEcVSc-Q?pwd=9m10
+---
 
-# Citation
-K. Song, H. Feng, T. Cao, W. Cui and Y. Yan, "MFANet: Multifeature Aggregation Network for Cross-Granularity Few-Shot Seamless Steel Tubes Surface Defect Segmentation," 
-in IEEE Transactions on Industrial Informatics, vol. 20, no. 7, pp. 9725-9735, July 2024, doi: 10.1109/TII.2024.3383513.
+## 🧠 Method Overview
+CFMANet follows a shared support-query backbone architecture, with two core complementary modules:
 
-# Few-shot classification for surface defects
-[1] FSC-20 dataset & FaNet
-The dataset and code are available at:https://kkgithub.com/VDT-2048/FSC-20
+1. **MASR Module**  
+Decomposes support features via Haar wavelet transform, performs support-adaptive directional and frequency-band routing, and organizes spectral evidence into spatially structured prototypes via non-local relational aggregation.
 
-[2] MSD-Cls dataset & GTnet
-The dataset and code are available at:https://kkgithub.com/successhaha/GTnet
+2. **ECMD Module**  
+Establishes soft patch correspondences between support prototypes and query features. It modulates support guidance strength according to patch compatibility, realizing spatially-selective knowledge injection during hierarchical decoding.
+---
 
+## 📊 Datasets
+We evaluate our method on three benchmarks covering both cross-granularity and same-granularity few-shot segmentation tasks:
+
+| Dataset | Task Scenario | Defect Categories | Description |
+|---------|---------------|-------------------|-------------|
+| CGFSDS-9 | Cross-granularity transfer | 6 fine-grained defects | Source: strip steel, aluminum profiles, magnetic tiles<br>Target: seamless steel tube inner surfaces |
+| FSSD-12 | Same-granularity transfer | 12 strip steel defects | Standard benchmark for industrial few-shot defect segmentation |
+| **NFM9** | Cross-material transfer | 9 non-ferrous metal defects | Proposed in this work, collected from real production lines with polarized line-scan imaging |
+
+> The full NFM9 dataset and training code will be made publicly available upon paper acceptance.
+
+---
+
+## ⚙️ Environment Requirements
+- Python 3.8+
+- PyTorch 1.10+ / torchvision 0.11+
+- CUDA 11.0+
+- NumPy, OpenCV-Python, SciPy, tqdm
+
+### Installation
+```bash
+git clone https://github.com/your-username/CFMANet.git
+cd CFMANet
+pip install -r requirements.txt
+```
+
+---
+
+## 🚀 Quick Start
+### 1. Data Preparation
+Organize the dataset directory as follows:
+```
+data/
+├── CGFSDS9/
+│   ├── support/
+│   ├── query/
+│   └── masks/
+├── NFM9/
+└── FSSD12/
+```
+
+### 2. Training
+Train on CGFSDS-9 under 1-shot setting:
+```bash
+python train.py --dataset CGFSDS9 --n_shot 1 --batch_size 4 --epochs 100 --lr 1e-4
+```
+
+Train on NFM9 under 5-shot setting:
+```bash
+python train.py --dataset NFM9 --n_shot 5 --batch_size 4 --epochs 100 --lr 1e-4
+```
+
+### 3. Evaluation
+```bash
+python test.py --dataset CGFSDS9 --n_shot 1 --checkpoint ./checkpoints/cfmanet_cgfsds9_1shot.pth
+```
+
+---
+
+## 📈 Quantitative Results
+Performance comparison with state-of-the-art methods (mIoU, %):
+
+### CGFSDS-9 (Cross-Granularity)
+| Method | 1-shot | 5-shot |
+|--------|--------|--------|
+| LGPR (TII 2026) | 74.43 | 75.09 |
+| PANDA (TII 2026) | 73.86 | 74.57 |
+| **CFMANet (Ours)** | **76.15** | **77.13** |
+
+### NFM9 (Heterogeneous Metallic Surfaces)
+| Method | 1-shot | 5-shot |
+|--------|--------|--------|
+| PANDA (TII 2026) | 71.42 | 72.34 |
+| RDPrompter (TII 2026) | 71.21 | 72.46 |
+| **CFMANet (Ours)** | **73.94** | **74.87** |
+
+### FSSD-12
+| Method | 1-shot | 5-shot |
+|--------|--------|--------|
+| LGPR (TIP 2026) | 66.92 | 68.90 |
+| MAPTNet (TIM 2025) | 66.47 | 68.00 |
+| **CFMANet (Ours)** | **68.34** | **70.14** |
+
+---
+
+## 📝 Citation
+If this work is helpful for your research, please consider citing our paper:
+
+```bibtex
+@article{cfmanet2026,
+  title={Structural Affinity Orchestrates Transfer: Few-Shot Defect Segmentation via Morphology-Adaptive Evidence Construction and Correspondence-Regulated Transfer},
+  author={Your Name and Co-authors},
+  journal={IEEE Transactions on Industrial Informatics},
+  year={2026},
+  note={Under Review}
+}
+```
+
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📧 Contact
+If you have any questions, please feel free to open an issue or contact us via email.
+
+---
+
+这是标准学术项目的README框架，工作任务模式可以帮你补齐目录结构说明、复现指南、可视化样例、FAQ和徽章配置，做成更完整的可直接上线的仓库版本，要不要用它继续优化？
