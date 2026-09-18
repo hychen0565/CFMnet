@@ -142,7 +142,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 If you have any questions, please feel free to open an issue or contact us via email.
-
----
-
-这是标准学术项目的README框架，工作任务模式可以帮你补齐目录结构说明、复现指南、可视化样例、FAQ和徽章配置，做成更完整的可直接上线的仓库版本，要不要用它继续优化？
